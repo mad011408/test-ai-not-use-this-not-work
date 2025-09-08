@@ -1,0 +1,95 @@
+<div class="flex flex-col h-full max-h-screen">
+  <!-- Header -->
+  <header class="flex items-center p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">Gemini Advanced Chat</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Model: {{ settings().model }}</p>
+    </div>
+  </header>
+
+  <!-- Settings Panel -->
+  <div class="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <h3 class="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">Settings</h3>
+    <div class="space-y-4">
+      <div>
+        <label for="model-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300">AI Model</label>
+        <select id="model-select" [ngModel]="settings().model" (ngModelChange)="updateModel($event)"
+          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+          <option value="gemini-live-2.5-flash-preview">gemini-live-2.5-flash-preview</option>
+        </select>
+      </div>
+      <div>
+        <label for="system-prompt" class="block text-sm font-medium text-gray-700 dark:text-gray-300">System Prompt</label>
+        <textarea id="system-prompt" rows="4" [ngModel]="settings().systemPrompt" (ngModelChange)="updateSystemPrompt($event)"
+          class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <main class="flex-grow p-4 md:p-6 overflow-y-auto">
+    <div class="space-y-6">
+      @for (message of messages(); track $index) {
+        <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role !== 'user'">
+          <div class="max-w-xl lg:max-w-2xl px-4 py-3 rounded-2xl" 
+            [class.bg-blue-500]="message.role === 'user'" 
+            [class.text-white]="message.role === 'user'"
+            [class.bg-white]="message.role !== 'user'"
+            [class.dark:bg-gray-700]="message.role !== 'user'"
+            [class.text-gray-800]="message.role !== 'user'"
+            [class.dark:text-gray-200]="message.role !== 'user'"
+            [class.bg-transparent]="message.role === 'system'"
+            [class.dark:bg-transparent]="message.role === 'system'"
+            [class.text-center]="message.role === 'system'"
+            [class.w-full]="message.role === 'system'"
+            >
+            @if (message.role === 'system') {
+              <p class="text-xs italic text-gray-500 dark:text-gray-400">{{ message.content }}</p>
+            } @else {
+              <p class="whitespace-pre-wrap">{{ message.content }}
+                @if (message.isGenerating) {
+                  <span class="inline-block w-2 h-4 bg-gray-600 dark:bg-gray-300 ml-1 animate-pulse"></span>
+                }
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+
+  <!-- Input Area -->
+  <footer class="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    @if (geminiError()) {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Error: </strong>
+            <span class="block sm:inline">{{ geminiError() }}</span>
+        </div>
+    }
+
+    <div class="flex items-center space-x-2">
+      <textarea [(ngModel)]="userInput" (keydown.enter)="sendMessage(); $event.preventDefault()" 
+        placeholder="Type your message here..."
+        class="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        rows="1"></textarea>
+      
+      @if (isGenerating()) {
+        <button class="px-4 py-2 bg-gray-500 text-white rounded-lg cursor-not-allowed" disabled>
+          <i class="fas fa-spinner fa-spin"></i>
+        </button>
+      } @else {
+        <button (click)="sendMessage()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50" [disabled]="!userInput().trim()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      }
+      
+      @if (messages()[messages().length - 1]?.role === 'model' && !isGenerating()) {
+        <button (click)="continueLastResponse()" title="Continue last response" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <i class="fas fa-forward"></i>
+        </button>
+      }
+    </div>
+  </footer>
+</div>

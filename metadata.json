@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Advanced Chatbot",
+  "description": "An advanced chatbot application powered by the Gemini API. It features prompt enhancement, model selection, theme customization, and a dedicated sidebar for detailed responses.",
+  "requestFramePermissions": []
+}

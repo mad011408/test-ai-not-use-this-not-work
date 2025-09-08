@@ -1,0 +1,41 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity" (click)="onClose()"></div>
+  <aside 
+    class="fixed top-0 right-0 h-full w-full md:w-3/4 lg:w-1/2 bg-white dark:bg-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out"
+    [class.translate-x-0]="isOpen()"
+    [class.translate-x-full]="!isOpen()">
+    
+    <div class="flex flex-col h-full">
+      <header class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Generated Response</h2>
+        <button (click)="onClose()" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      
+      <main class="flex-grow p-6 overflow-y-auto prose dark:prose-invert max-w-none">
+        @for (block of parsedContent(); track $index) {
+          @if (block.type === 'text') {
+            <div [innerHTML]="formatText(block.content)"></div>
+          } @else if (block.type === 'code') {
+            <div class="relative bg-gray-900 dark:bg-black rounded-lg my-4">
+              <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700 dark:border-gray-800">
+                <span class="text-xs font-mono text-gray-400">{{ block.language }}</span>
+                <button (click)="copyCode(block.content, $index)" class="flex items-center text-xs text-gray-400 hover:text-white">
+                  @if (copyStatus()[$index]) {
+                    <i class="fas fa-check mr-2"></i>
+                    <span>Copied!</span>
+                  } @else {
+                    <i class="far fa-copy mr-2"></i>
+                    <span>Copy</span>
+                  }
+                </button>
+              </div>
+              <pre class="p-4 text-sm text-white overflow-x-auto"><code>{{ block.content }}</code></pre>
+            </div>
+          }
+        }
+      </main>
+    </div>
+  </aside>
+}

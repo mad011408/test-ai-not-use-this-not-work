@@ -1,0 +1,18 @@
+<div class="relative h-screen w-screen overflow-hidden flex">
+  <!-- Theme Toggle Button -->
+  <button (click)="toggleTheme()" class="absolute top-4 right-4 z-20 w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 flex items-center justify-center shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+    @if (theme() === 'light') {
+      <i class="fas fa-moon"></i>
+    } @else {
+      <i class="fas fa-sun"></i>
+    }
+  </button>
+  
+  <!-- Main Chat Interface -->
+  <div class="flex-grow h-full transition-all duration-300" [class]="isSidebarOpen() ? 'md:mr-[50%] lg:mr-[33.33%] xl:mr-[25%]' : ''">
+    <app-chat (openSidebar)="handleOpenSidebar($event)"></app-chat>
+  </div>
+  
+  <!-- Response Sidebar -->
+  <app-sidebar [isOpen]="isSidebarOpen()" [content]="sidebarContent()" (closeSidebar)="handleCloseSidebar()"></app-sidebar>
+</div>
